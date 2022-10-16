@@ -1,8 +1,8 @@
 from argparse import ArgumentParser
 from pathlib import Path
 from lxml import etree
+from openpyxl import load_workbook
 from warnings import warn
-import pandas as pd
 
 
 def find_files_in_dir(dir: Path):
@@ -13,7 +13,7 @@ def find_files_in_dir(dir: Path):
     else:
         excel_files = list(dir.glob('*.xlsx'))
 
-    if len(xml_files) > 1 or len(excel_files) > 1:
+    if len(xml_files) != 1 or len(excel_files) != 1:
         warn(f"There are {len(xml_files)} XML files and {len(excel_files)} Excel files present...")
         input("Press enter to continue...")
         exit(1)
@@ -47,8 +47,8 @@ if __name__ == '__main__':
     output_file_path = output_name(xml_file_path)
 
     # Work
-    excel = pd.read_excel(excel_input_path, header=None)
-    input_data = excel.iloc[:, 0].tolist()
+    excel = load_workbook(excel_input_path)
+    input_data = [c.value for c in excel.active['A']]
 
     tree = etree.parse(xml_file_path)
     root = tree.getroot()
